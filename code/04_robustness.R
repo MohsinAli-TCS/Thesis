@@ -19,7 +19,8 @@ specs <- list(
   M8  = list("Emerging economies only", MAIN, an %>% filter(group == "Emerging")),
   M9  = list("Drop Pakistan", MAIN, an %>% filter(iso3c != "PAK")),
   M10 = list("Pre-COVID (2003-2019)", MAIN, an %>% filter(year <= 2019)),
-  M11 = list("DTI rebuilt without DFI (3-component PCA)", MAIN, an_d3))
+  M11 = list("DTI rebuilt without DFI (3-component PCA)", MAIN, an_d3),
+  M12 = list("DTI with EGDI excluding its Human Capital sub-index", MAIN, an %>% mutate(dti_score = dti_nohci, z_tel = z_tel_nohci)))
 rob <- list()
 for (id in names(specs)) { s <- specs[[id]]
   pt <- fit_cf(s[[3]], s[[2]], outcomes = "poverty_inv")$poverty_inv
