@@ -64,6 +64,9 @@ All inputs are public. `data/raw/` contains:
 | `panel_full.csv` | Full panel: 38 economies, 2000–2023 (DTI sub-components, enrolment) | As above |
 | `wdi_IT.MLT.MAIN.P2_fixed_telephone.csv` | Fixed-telephone subscriptions per 100 people, 1975–2000 | World Bank WDI (ITU) |
 | `wdi_IT.CEL.SETS.P2_mobile_subscriptions.csv` | Mobile subscriptions per 100 people, 1975–2000 | World Bank WDI (ITU) |
+| `undesa_egdi_components.csv` | EGDI and its sub-indices (Online Service, Human Capital, Telecom Infrastructure), survey years 2005–2022 | UN DESA E-Government Survey |
+
+**EGDI without the Human Capital sub-index (robustness, Table 5).** The EGDI is the average of three sub-indices. One of them, the Human Capital Index, is built from literacy and school enrolment, so it overlaps with the tertiary-enrolment moderator. `01_build_data.R` rebuilds the EGDI as the average of the Online Service and Telecom Infrastructure sub-indices, using the same interpolation as the original series; the script checks that this interpolation reproduces the panel EGDI exactly. It then recomputes the DTI, its leave-one-out global path and the telephone instrument (`dti_nohci`, `z_tel_nohci`).
 
 Variable sources:
 
