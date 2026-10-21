@@ -11,4 +11,5 @@
 "Drop Pakistan","415","9.04","[4.20, 12.99]","13.26","[6.16, 19.05]","0.000"
 "Pre-COVID (2003-2019)","346","10.92","[5.28, 15.30]","16.01","[7.74, 22.44]","0.000"
 "DTI rebuilt without DFI (3-component PCA)","422","9.55","[4.84, 15.32]","14.00","[7.10, 22.46]","0.002"
+"DTI with EGDI excluding its Human Capital sub-index","422","9.42","[5.06, 13.16]","13.81","[7.41, 19.30]","0.000"
 "Leave-one-country-out jackknife (range of 37 estimates)","","9.04 to 11.70","","13.26 to 17.16","",""
