@@ -30,7 +30,24 @@ sub3 <- c("fixed_bb", "mobile_bb", "egdi"); cc <- complete.cases(panel[, sub3])
 p3 <- prcomp(panel[cc, sub3], center = TRUE, scale. = TRUE)
 panel$dti3 <- NA; panel$dti3[cc] <- p3$x[, 1] * sign(p3$rotation[1, 1])
 
+# Alternative DTI with the e-government index rebuilt WITHOUT its Human Capital
+# sub-index (robustness): EGDI_noHCI = (OSI + TII) / 2 at UN survey years, interpolated
+# exactly like the original EGDI (linear between surveys, end values held flat).
+ec <- read.csv("data/raw/undesa_egdi_components.csv")
+interp <- function(d, v) d %>% filter(!is.na(.data[[v]])) %>% group_by(iso3c) %>%
+  group_modify(~ data.frame(year = 2000:2023, val = approx(.x$year, .x[[v]], xout = 2000:2023, rule = 2)$y)) %>% ungroup()
+ec$egdi_nohci <- (ec$osi + ec$tii) / 2
+chk <- panel %>% select(iso3c, year, egdi) %>% left_join(interp(ec, "egdi") %>% rename(e2 = val), by = c("iso3c", "year"))
+stopifnot(max(abs(chk$egdi - chk$e2)) < 1e-8)                         # interpolation reproduces the panel EGDI exactly
+panel <- panel %>% left_join(interp(ec, "egdi_nohci") %>% rename(egdi_nohci = val), by = c("iso3c", "year"))
+comp4 <- c("fixed_bb", "mobile_bb", "egdi_nohci", "dfi"); cc4 <- complete.cases(panel[, comp4])
+p4 <- prcomp(panel[cc4, comp4], center = TRUE, scale. = TRUE)
+panel$dti_nohci <- NA; panel$dti_nohci[cc4] <- map[1] + map[2] * (p4$x[, 1] * sign(sum(p4$rotation[, 1])))   # same scale map as the DTI
+glob_nohci <- panel %>% group_by(year) %>% mutate(n = sum(!is.na(dti_nohci)), s = sum(dti_nohci, na.rm = TRUE)) %>% ungroup() %>%
+  mutate(glob_loo_nohci = (s - ifelse(is.na(dti_nohci), 0, dti_nohci)) / (n - !is.na(dti_nohci))) %>% select(iso3c, year, dti_nohci, glob_loo_nohci)
+
 an <- s1 %>% left_join(pre, by = "iso3c") %>% left_join(glob, by = c("iso3c", "year")) %>%
+  left_join(glob_nohci, by = c("iso3c", "year")) %>% mutate(z_tel_nohci = ft_pre * glob_loo_nohci) %>%
   left_join(panel %>% select(iso3c, year, dti3), by = c("iso3c", "year")) %>%
   mutate(z_tel = ft_pre * glob_loo, z_mob = mob_pre * glob_loo,
          dti3 = (dti3 - mean(dti3)) / sd(dti3) * sd(dti_score) + mean(dti_score))   # rescaled to the DTI's mean/SD
